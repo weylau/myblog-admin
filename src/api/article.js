@@ -39,3 +39,10 @@ export function updateArticle(data) {
     data
   })
 }
+
+export function deleteArticle(id) {
+  return request({
+    url: `/article/${id}`,
+    method: 'delete'
+  })
+}

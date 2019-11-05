@@ -13,7 +13,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="300px" label="Title">
+      <el-table-column min-width="200px" label="Title">
         <template slot-scope="{row}">
           <router-link :to="'/article/edit/'+row.id" class="link-type">
             <span>{{ row.title }}</span>
@@ -33,18 +33,17 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="Actions" width="120">
+      <el-table-column align="center" label="Actions" width="220">
         <template slot-scope="scope">
           <router-link :to="'/article/edit/'+scope.row.article_id">
             <el-button type="primary" size="small" icon="el-icon-edit">
               编辑
             </el-button>
           </router-link>
-          <router-link :to="'/article/delete/'+scope.row.article_id">
-            <el-button type="primary" size="small" icon="el-icon-delete">
+        <br/>
+            <el-button type="primary" size="small" icon="el-icon-delete" @click="handleDelete(scope.row.article_id)">
               删除
             </el-button>
-          </router-link>
         </template>
       </el-table-column>
     </el-table>
@@ -54,12 +53,13 @@
 </template>
 
 <script>
-import { fetchList } from '@/api/article'
+import { fetchList, deleteArticle} from '@/api/article'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
 export default {
   name: 'ArticleList',
   components: { Pagination },
+  inject:['reload'],
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -93,7 +93,23 @@ export default {
         this.total = response.data.total
         this.listLoading = false
       })
-    }
+    },
+    handleDelete(article_id) {
+      this.$confirm('确定删除此条记录?', 'Warning', {
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      })
+      .then(async() => {
+        await deleteArticle(article_id)
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+        this.reload()
+      })
+      .catch(err => { console.error(err) })
+    },
   }
 }
 </script>
