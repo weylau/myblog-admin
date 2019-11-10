@@ -2,20 +2,13 @@
   <div class="createPost-container">
     <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
       <sticky :z-index="10" :class-name="'sub-navbar '+postForm.status">
-<!--        <CommentDropdown v-model="postForm.comment_disabled" />-->
-<!--        <PlatformDropdown v-model="postForm.platforms" />-->
-<!--        <SourceUrlDropdown v-model="postForm.source_uri" />-->
         <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
           发布
         </el-button>
-<!--        <el-button v-loading="loading" type="warning" @click="draftForm">-->
-<!--          Draft-->
-<!--        </el-button>-->
       </sticky>
 
       <div class="createPost-main-container">
         <el-row>
-<!--          <Warning />-->
 
           <el-col :span="24">
             <el-form-item style="margin-bottom: 40px;" prop="title">
@@ -26,16 +19,9 @@
 
             <div class="postInfo-container">
               <el-row>
-<!--                <el-col :span="8">-->
-<!--                  <el-form-item label-width="60px" label="所属分类:" class="postInfo-container-item">-->
-<!--                    <el-select v-model="postForm.cate_id" :remote-method="getRemoteUserList" filterable default-first-option remote placeholder="Search user">-->
-<!--                      <el-option v-for="(item,index) in userListOptions" :key="item+index" :label="item" :value="item" />-->
-<!--                    </el-select>-->
-<!--                  </el-form-item>-->
-<!--                </el-col>-->
 
                 <el-col :span="8">
-                  <el-form-item label-width="60px" label="所属分类:" class="postInfo-container-item">
+                  <el-form-item label-width="100px" label="所属分类:" class="postInfo-container-item">
                     <el-select v-model="postForm.cate_id" placeholder="请选择分类">
                       <el-option v-for="(item,index) in cateListOptions" :key="index" :label="item.cate_name" :value="item.cate_id" />
                     </el-select>
@@ -47,42 +33,33 @@
                     <el-date-picker v-model="postForm.publish_time" type="datetime" format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss" placeholder="请选择时间" />
                   </el-form-item>
                 </el-col>
-
-
-<!--                <el-col :span="6">-->
-<!--                  <el-form-item label-width="90px" label="Importance:" class="postInfo-container-item">-->
-<!--                    <el-rate-->
-<!--                      v-model="postForm.importance"-->
-<!--                      :max="3"-->
-<!--                      :colors="['#99A9BF', '#F7BA2A', '#FF9900']"-->
-<!--                      :low-threshold="1"-->
-<!--                      :high-threshold="3"-->
-<!--                      style="display:inline-block"-->
-<!--                    />-->
-<!--                  </el-form-item>-->
-<!--                </el-col>-->
               </el-row>
             </div>
           </el-col>
         </el-row>
 
-        <el-form-item style="margin-bottom: 40px;" label-width="70px" label="简介:">
+        <el-form-item style="margin-bottom: 40px;" label-width="100px" label="简介:">
           <el-input v-model="postForm.description" :rows="1" type="textarea" class="article-textarea" autosize placeholder="请输入内容" />
           <span v-show="contentShortLength" class="word-counter">{{ contentShortLength }}字符</span>
         </el-form-item>
 
-        <el-form-item style="margin-bottom: 40px;" label-width="70px" label="关键词:">
+        <el-form-item style="margin-bottom: 40px;" label-width="100px" label="关键词:">
           <el-input v-model="postForm.keywords" :rows="1" type="textarea" class="article-textarea" autosize placeholder="请输入内容" />
           <span v-show="contentShortLength" class="word-counter">{{ contentShortLength }}words</span>
         </el-form-item>
 
-        <el-form-item prop="content" style="margin-bottom: 30px;">
+          <el-form-item label-width="100px" label="文本格式:" class="postInfo-container-item">
+              <el-select v-model="postForm.show_type" placeholder="请选择">
+                  <el-option v-for="(item,index) in showType" :key="index" :label="item.name" :value="item.id" />
+              </el-select>
+          </el-form-item>
+
+        <el-form-item v-if="postForm.show_type == 1" prop="content" style="margin-bottom: 30px;">
           <Tinymce ref="editor" v-model="postForm.contents" :height="400" />
         </el-form-item>
-
-<!--        <el-form-item prop="image_uri" style="margin-bottom: 30px;">-->
-<!--          <Upload v-model="postForm.img_path" />-->
-<!--        </el-form-item>-->
+          <el-form-item v-if="postForm.show_type == 2" style="margin-bottom: 30px;">
+              <MarkdownEditor v-model="postForm.contents" :height="markdownEditor.height" :language="markdownEditor.language"/>
+          </el-form-item>
       </div>
     </el-form>
   </div>
@@ -91,6 +68,7 @@
 <script>
 import Tinymce from '@/components/Tinymce'
 import Upload from '@/components/Upload/SingleImage3'
+import MarkdownEditor from '@/components/MarkdownEditor'
 import MDinput from '@/components/MDinput'
 import Sticky from '@/components/Sticky' // 粘性header组件
 import { validURL } from '@/utils/validate'
@@ -100,7 +78,7 @@ import Warning from './Warning'
 import { CommentDropdown, PlatformDropdown, SourceUrlDropdown } from './Dropdown'
 
 const defaultForm = {
-  cate_id: 0,//所属分类
+  cate_id: undefined,//所属分类
   title: '', // 文章题目
   contents: '', // 文章内容
   description: '', // 文章摘要
@@ -108,11 +86,12 @@ const defaultForm = {
   img_path: '', // 文章图片
   publish_time: undefined, // 前台展示时间
   id: undefined,
+  show_type: 1,
 }
 
 export default {
   name: 'ArticleDetail',
-  components: { Tinymce, MDinput, Upload, Sticky, Warning, CommentDropdown, PlatformDropdown, SourceUrlDropdown },
+  components: { Tinymce, MarkdownEditor, MDinput, Upload, Sticky, Warning, CommentDropdown, PlatformDropdown, SourceUrlDropdown },
   props: {
     isEdit: {
       type: Boolean,
@@ -175,13 +154,27 @@ export default {
           cate_name: '其他',
         },
       ],
+        showType: [
+            {
+                id: 1,
+                name: 'html',
+            },
+            {
+                id: 2,
+                name: 'markdown',
+            },
+        ],
       rules: {
         img_path: [{ validator: validateRequire }],
         title: [{ validator: validateRequire }],
         contents: [{ validator: validateRequire }],
         // source_uri: [{ validator: validateSourceUri, trigger: 'blur' }]
       },
-      tempRoute: {}
+      tempRoute: {},
+        markdownEditor : {
+          height:"400px",
+            language:"zh_CN"
+        }
     }
   },
   computed: {
@@ -218,11 +211,8 @@ export default {
   methods: {
     fetchData(id) {
       fetchArticle(id).then(response => {
+        console.log('response:',response)
         this.postForm = response.data
-
-        // just for test
-        this.postForm.title += `   Article Id:${this.postForm.id}`
-        this.postForm.content_short += `   Article Id:${this.postForm.id}`
 
         // set tagsview title
         this.setTagsViewTitle()

@@ -13,27 +13,27 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="200px" label="Title">
+      <el-table-column min-width="200px" label="标题">
         <template slot-scope="{row}">
-          <router-link :to="'/article/edit/'+row.id" class="link-type">
+          <router-link :to="'/article/edit/'+row.article_id" class="link-type">
             <span>{{ row.title }}</span>
           </router-link>
         </template>
       </el-table-column>
 
-      <el-table-column width="180px" align="center" label="Date">
+      <el-table-column width="180px" align="center" label="发布时间">
         <template slot-scope="scope">
           <span>{{ scope.row.modify_time}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="120px" align="center" label="Author">
+      <el-table-column width="120px" align="center" label="作者">
         <template slot-scope="scope">
           <span>{{ scope.row.op_user }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="Actions" width="220">
+      <el-table-column align="center" label="操作" width="220">
         <template slot-scope="scope">
           <router-link :to="'/article/edit/'+scope.row.article_id">
             <el-button type="primary" size="small" icon="el-icon-edit">
