@@ -91,6 +91,7 @@ const defaultForm = {
 
 export default {
   name: 'ArticleDetail',
+  inject:['reload'],
   components: { Tinymce, MarkdownEditor, MDinput, Upload, Sticky, Warning, CommentDropdown, PlatformDropdown, SourceUrlDropdown },
   props: {
     isEdit: {
@@ -126,6 +127,7 @@ export default {
       }
     }
     return {
+      id:undefined,
       postForm: Object.assign({}, defaultForm),
       loading: false,
       cateListOptions: [
@@ -233,24 +235,44 @@ export default {
       document.title = `${title} - ${this.postForm.id}`
     },
     submitForm() {
-      console.log(this.postForm)
       this.$refs.postForm.validate(valid => {
         if (valid) {
             this.loading = true
-            this.$store.dispatch('article/create', this.postForm)
-                .then(() => {
-                    this.loading = false
-                    this.$notify({
-                        title: '成功',
-                        message: '发布文章成功',
-                        type: 'success',
-                        duration: 2000
-                    })
-                    this.$router.push({ path: '/article/list'})
-                })
-                .catch(() => {
-                    this.loading = false
-                })
+            if (this.isEdit) {
+              this.$store.dispatch('article/update',this.postForm)
+                      .then(() => {
+                        this.loading = false
+                        this.$notify({
+                          title: '成功',
+                          message: '发布文章成功',
+                          type: 'success',
+                          duration: 2000
+                        })
+                        this.reload()
+                        this.$router.push({ path: '/article/list'})
+                      })
+                      .catch(() => {
+                        this.loading = false
+                      })
+
+            } else {
+              this.$store.dispatch('article/create', this.postForm)
+                      .then(() => {
+                        this.loading = false
+                        this.$notify({
+                          title: '成功',
+                          message: '发布文章成功',
+                          type: 'success',
+                          duration: 2000
+                        })
+                        this.reload()
+                        this.$router.push({ path: '/article/list'})
+                      })
+                      .catch(() => {
+                        this.loading = false
+                      })
+
+            }
 
           this.postForm.status = 'published'
           this.loading = false

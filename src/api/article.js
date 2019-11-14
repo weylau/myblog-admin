@@ -33,8 +33,8 @@ export function createArticle(data) {
 
 export function updateArticle(data) {
   return request({
-    url: '/article/update',
-    method: 'post',
+    url: `/article/update/${data.id}`,
+    method: 'put',
     data
   })
 }

@@ -75,6 +75,7 @@ export default {
       list: null,
       total: 0,
       listLoading: true,
+      isRouterAlive:true,
       listQuery: {
         page: 1,
         page_size: 20
