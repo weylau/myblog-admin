@@ -20,6 +20,11 @@
           </router-link>
         </template>
       </el-table-column>
+      <el-table-column align="center" label="显示状态" width="80">
+        <template slot-scope="scope">
+          <span>{{ scope.row.status == 1 ? "公开" : "私密" }}</span>
+        </template>
+      </el-table-column>
 
       <el-table-column width="180px" align="center" label="发布时间">
         <template slot-scope="scope">

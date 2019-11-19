@@ -1,7 +1,7 @@
 <template>
   <div class="createPost-container">
     <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
-      <sticky :z-index="10" :class-name="'sub-navbar '+postForm.status">
+      <sticky :z-index="10" :class-name="'sub-navbar '+postForm.page_status">
         <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
           发布
         </el-button>
@@ -16,6 +16,7 @@
                 标题
               </MDinput>
             </el-form-item>
+
 
             <div class="postInfo-container">
               <el-row>
@@ -37,6 +38,10 @@
             </div>
           </el-col>
         </el-row>
+
+        <el-form-item label-width="100px" label="显示状态:" class="article-status-swich">
+          <el-switch v-model="postForm.status_switch" active-text="私密" inactive-text="公开"/>
+        </el-form-item>
 
         <el-form-item style="margin-bottom: 40px;" label-width="100px" label="简介:">
           <el-input v-model="postForm.description" :rows="1" type="textarea" class="article-textarea" autosize placeholder="请输入内容" />
@@ -77,17 +82,6 @@ import { searchUser } from '@/api/remote-search'
 import Warning from './Warning'
 import { CommentDropdown, PlatformDropdown, SourceUrlDropdown } from './Dropdown'
 
-const defaultForm = {
-  cate_id: undefined,//所属分类
-  title: '', // 文章题目
-  contents: '', // 文章内容
-  description: '', // 文章摘要
-  keywords: '', // 文章关键词
-  img_path: '', // 文章图片
-  publish_time: undefined, // 前台展示时间
-  id: undefined,
-  show_type: 1,
-}
 
 export default {
   name: 'ArticleDetail',
@@ -128,7 +122,19 @@ export default {
     }
     return {
       id:undefined,
-      postForm: Object.assign({}, defaultForm),
+      postForm: {
+        cate_id: undefined,//所属分类
+        title: '', // 文章题目
+        contents: '', // 文章内容
+        description: '', // 文章摘要
+        keywords: '', // 文章关键词
+        img_path: '', // 文章图片
+        publish_time: undefined, // 前台展示时间
+        id: undefined,
+        show_type: 1,
+        status:1,
+        status_switch:false,
+      },
       loading: false,
       cateListOptions: [
         {
@@ -210,13 +216,30 @@ export default {
     // https://github.com/PanJiaChen/vue-element-admin/issues/1221
     this.tempRoute = Object.assign({}, this.$route)
   },
+  mounted() {
+
+  },
   methods: {
     fetchData(id) {
       fetchArticle(id).then(response => {
-        console.log('response:',response)
+        response.data.status_switch = false
+        // this.postForm = Object.assign({}, response.data)
         this.postForm = response.data
-
-        // set tagsview title
+        // this.postForm.id = response.data.id
+        // this.postForm.cate_id = response.data.cate_id
+        // this.postForm.title = response.data.title
+        // this.postForm.contents = response.data.contents
+        // this.postForm.description = response.data.description
+        // this.postForm.keywords = response.data.keywords
+        // this.postForm.img_path = response.data.img_path
+        // this.postForm.publish_time = response.data.publish_time
+        // this.postForm.show_type = response.data.show_type
+        // this.postForm.status = response.data.status
+        if(this.postForm.status === 1) {
+          this.postForm.status_switch = false
+        } else {
+          this.postForm.status_switch = true
+        }
         this.setTagsViewTitle()
 
         // set page title
@@ -237,6 +260,11 @@ export default {
     submitForm() {
       this.$refs.postForm.validate(valid => {
         if (valid) {
+            if (this.postForm.status_switch === true) {
+              this.postForm.status = 2
+            } else {
+              this.postForm.status = 1
+            }
             this.loading = true
             if (this.isEdit) {
               this.$store.dispatch('article/update',this.postForm)
@@ -274,7 +302,7 @@ export default {
 
             }
 
-          this.postForm.status = 'published'
+          this.postForm.page_status = 'published'
           this.loading = false
         } else {
           console.log('error submit!!')
@@ -296,7 +324,7 @@ export default {
         showClose: true,
         duration: 1000
       })
-      this.postForm.status = 'draft'
+      this.postForm.page_status = 'draft'
     },
     getRemoteUserList(query) {
       searchUser(query).then(response => {
