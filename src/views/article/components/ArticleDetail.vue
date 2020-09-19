@@ -182,6 +182,7 @@ export default {
     }
   },
   created() {
+    this.getCate()
     if (this.isEdit) {
       const id = this.$route.params && this.$route.params.id
       this.fetchData(id)
@@ -213,11 +214,7 @@ export default {
       }).catch(err => {
         console.log(err)
       })
-      getCate().then(response => {
-        this.cateListOptions = response.data
-      }).catch(err => {
-        console.log(err)
-      })
+
     },
     setTagsViewTitle() {
       const title = this.lang === 'zh' ? '编辑文章' : 'Edit Article'
@@ -227,6 +224,13 @@ export default {
     setPageTitle() {
       const title = 'Edit Article'
       document.title = `${title} - ${this.postForm.id}`
+    },
+    getCate() {
+      getCate().then(response => {
+        this.cateListOptions = response.data
+      }).catch(err => {
+        console.log(err)
+      })
     },
     submitForm() {
       this.$refs.postForm.validate(valid => {
