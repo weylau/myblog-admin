@@ -45,3 +45,10 @@ export function deleteArticle(id) {
     method: 'delete'
   })
 }
+
+export function getCate() {
+  return request({
+    url: '/categories',
+    method: 'get',
+  })
+}

@@ -24,7 +24,7 @@
                 <el-col :span="8">
                   <el-form-item label-width="100px" label="所属分类:" class="postInfo-container-item">
                     <el-select v-model="postForm.cate_id" placeholder="请选择分类">
-                      <el-option v-for="(item,index) in cateListOptions" :key="index" :label="item.cate_name" :value="item.cate_id" />
+                      <el-option v-for="(item,index) in cateListOptions" :key="index" :label="item.c_name" :value="item.cate_id" />
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -77,7 +77,7 @@ import MarkdownEditor from '@/components/MarkdownEditor'
 import MDinput from '@/components/MDinput'
 import Sticky from '@/components/Sticky' // 粘性header组件
 import { validURL } from '@/utils/validate'
-import { fetchArticle } from '@/api/article'
+import { fetchArticle,getCate } from '@/api/article'
 import { searchUser } from '@/api/remote-search'
 import Warning from './Warning'
 import { CommentDropdown, PlatformDropdown, SourceUrlDropdown } from './Dropdown'
@@ -137,30 +137,6 @@ export default {
       },
       loading: false,
       cateListOptions: [
-        {
-          cate_id: 1,
-          cate_name: 'php',
-        },
-        {
-          cate_id: 2,
-          cate_name: 'mysql',
-        },
-        {
-          cate_id: 3,
-          cate_name: 'golang',
-        },
-        {
-          cate_id: 4,
-          cate_name: 'linux',
-        },
-        {
-          cate_id: 5,
-          cate_name: '前端',
-        },
-        {
-          cate_id: 6,
-          cate_name: '其他',
-        },
       ],
         showType: [
             {
@@ -225,16 +201,6 @@ export default {
         response.data.status_switch = false
         // this.postForm = Object.assign({}, response.data)
         this.postForm = response.data
-        // this.postForm.id = response.data.id
-        // this.postForm.cate_id = response.data.cate_id
-        // this.postForm.title = response.data.title
-        // this.postForm.contents = response.data.contents
-        // this.postForm.description = response.data.description
-        // this.postForm.keywords = response.data.keywords
-        // this.postForm.img_path = response.data.img_path
-        // this.postForm.publish_time = response.data.publish_time
-        // this.postForm.show_type = response.data.show_type
-        // this.postForm.status = response.data.status
         if(this.postForm.status === 1) {
           this.postForm.status_switch = false
         } else {
@@ -244,6 +210,11 @@ export default {
 
         // set page title
         this.setPageTitle()
+      }).catch(err => {
+        console.log(err)
+      })
+      getCate().then(response => {
+        this.cateListOptions = response.data
       }).catch(err => {
         console.log(err)
       })
